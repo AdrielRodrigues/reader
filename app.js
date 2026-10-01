@@ -88,26 +88,49 @@
       useBarCodeDetectorIfSupported: true,
     });
     els.status.textContent = "Iniciando câmera…";
+    const config = {
+      fps: 10,
+      // Área larga e baixa, adequada a códigos de barras lineares.
+      qrbox: (w, h) => ({
+        width: Math.max(50, Math.floor(w * 0.85)),
+        height: Math.max(50, Math.floor(Math.min(h, w) * 0.4)),
+      }),
+    };
+    const noop = () => {}; // erro por frame sem código: ignorar
     try {
-      await scanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          // Área larga e baixa, adequada a códigos de barras lineares.
-          qrbox: (w, h) => ({
-            width: Math.max(50, Math.floor(w * 0.85)),
-            height: Math.max(50, Math.floor(Math.min(h, w) * 0.4)),
-          }),
-        },
-        onScan,
-        () => {} // erro por frame sem código: ignorar
-      );
+      try {
+        await scanner.start({ facingMode: "environment" }, config, onScan, noop);
+      } catch (err) {
+        if (isPermissionError(err)) throw err;
+        // Sem câmera traseira (ex.: notebook): tenta a primeira câmera disponível.
+        const cams = await Html5Qrcode.getCameras();
+        if (!cams.length) throw err;
+        await scanner.start(cams[cams.length - 1].id, config, onScan, noop);
+      }
       running = true;
       els.toggle.textContent = "Parar câmera";
       els.status.textContent = "Aponte a câmera para o código de barras.";
     } catch (err) {
-      els.status.textContent = "Não foi possível abrir a câmera: " + (err && err.message ? err.message : err);
+      els.status.textContent = describeError(err);
     }
+  }
+
+  function isPermissionError(err) {
+    return /NotAllowed|Permission/i.test(String((err && err.name) || "") + " " + String(err));
+  }
+
+  function describeError(err) {
+    const raw = String((err && (err.message || err.name)) || err);
+    if (isPermissionError(err)) {
+      return "Permissão da câmera negada. Libere o acesso à câmera nas configurações do site e recarregue. (" + raw + ")";
+    }
+    if (/NotFound|no camera|Requested device not found/i.test(raw)) {
+      return "Nenhuma câmera encontrada neste dispositivo. (" + raw + ")";
+    }
+    if (/NotReadable|in use|Could not start video/i.test(raw)) {
+      return "A câmera está em uso por outro app ou aba. Feche-o e tente de novo. (" + raw + ")";
+    }
+    return "Não foi possível abrir a câmera: " + raw;
   }
 
   async function stop() {
@@ -116,6 +139,9 @@
     els.toggle.textContent = "Iniciar câmera";
     els.status.textContent = "";
   }
+
+  window.addEventListener("error", (e) => { els.status.textContent = "Erro: " + e.message; });
+  window.addEventListener("unhandledrejection", (e) => { els.status.textContent = describeError(e.reason); });
 
   els.toggle.addEventListener("click", () => (running ? stop() : start()));
 
