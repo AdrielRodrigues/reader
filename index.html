@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leitor de código de barras</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Leitor de código de barras</h1>
+
+    <div id="result" class="result idle">Aguardando leitura…</div>
+
+    <div id="scanner"></div>
+    <div class="row">
+      <button id="toggle" type="button">Iniciar câmera</button>
+    </div>
+    <p id="status" class="hint"></p>
+
+    <section>
+      <h2>Digitar manualmente</h2>
+      <form id="manual" class="row">
+        <input id="manual-input" type="text" inputmode="numeric" placeholder="Código" autocomplete="off">
+        <button type="submit">Verificar</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Lista de códigos <span id="count" class="hint"></span></h2>
+      <textarea id="codes" rows="8" spellcheck="false" placeholder="Um código por linha"></textarea>
+      <div class="row">
+        <button id="save" type="button">Salvar lista</button>
+        <button id="reset" type="button" class="secondary">Restaurar padrão</button>
+      </div>
+      <p class="hint">A lista editada fica salva apenas neste navegador. O padrão vem de <code>codes.js</code>.</p>
+    </section>
+
+    <section>
+      <h2>Histórico</h2>
+      <ul id="history"></ul>
+    </section>
+  </main>
+
+  <script src="vendor/html5-qrcode.min.js"></script>
+  <script src="codes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
