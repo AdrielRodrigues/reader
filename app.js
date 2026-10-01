@@ -94,7 +94,10 @@
         {
           fps: 10,
           // Área larga e baixa, adequada a códigos de barras lineares.
-          qrbox: (w, h) => ({ width: Math.floor(w * 0.85), height: Math.floor(Math.min(h, w) * 0.4) }),
+          qrbox: (w, h) => ({
+            width: Math.max(50, Math.floor(w * 0.85)),
+            height: Math.max(50, Math.floor(Math.min(h, w) * 0.4)),
+          }),
         },
         onScan,
         () => {} // erro por frame sem código: ignorar

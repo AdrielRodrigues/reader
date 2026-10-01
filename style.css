@@ -19,7 +19,7 @@ section { margin-top: 8px; }
 code { background: var(--card); border: 1px solid var(--border); padding: 0 4px; border-radius: 4px; }
 
 #scanner { width: 100%; min-height: 0; border-radius: 8px; overflow: hidden; background: #000; }
-#scanner:empty { display: none; }
+#scanner video { width: 100% !important; }
 
 button {
   font: inherit; padding: 10px 14px; border-radius: 8px; border: 0; cursor: pointer;
